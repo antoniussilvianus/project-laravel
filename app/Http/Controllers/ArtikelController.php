@@ -75,8 +75,8 @@ class ArtikelController extends Controller
         //validate form
         $this->validate($request, [
             'image'     => 'image|mimes:jpeg,jpg,png|max:2048',
-            'title'     => 'required|min:7',
-            'content'   => 'required|min:15'
+            'title'     => 'required|min:5',
+            'content'   => 'required|min:10'
         ]);
 
         //get artikel by ID
@@ -90,7 +90,7 @@ class ArtikelController extends Controller
             $image->storeAs('public/artikels', $image->hashName());
 
             //delete old image
-            Storage::delete('public/artikels/' . $artikel->image);
+            Storage::delete('public/artikels/'.$artikel->image);
 
             //update artikel with new image
             $artikel->update([
@@ -98,6 +98,7 @@ class ArtikelController extends Controller
                 'title'     => $request->title,
                 'content'   => $request->content
             ]);
+
         } else {
 
             //update artikel without image
@@ -106,6 +107,21 @@ class ArtikelController extends Controller
                 'content'   => $request->content
             ]);
         }
+
+        //redirect to index
+        return redirect()->route('artikels.index');
+    }
+
+    public function destroy($id): RedirectResponse
+    {
+        //get artikel by ID
+        $artikel = Artikel::findOrFail($id);
+
+        //delete image
+        Storage::delete('public/artikels/'. $artikel->image);
+
+        //delete artikel
+        $artikel->delete();
 
         //redirect to index
         return redirect()->route('artikels.index');
